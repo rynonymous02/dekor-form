@@ -39,17 +39,7 @@
               required
             />
           </div>
-          <div class="form-group">
-            <label for="email">Email:</label>
-            <input
-              class="form-control"
-              type="email"
-              name="email"
-              id="email"
-              placeholder="Alamat email"
-              required
-            />
-          </div>
+
           <div class="form-group">
             <label for="contact_number">Nomor Kontak:</label>
             <input
@@ -108,13 +98,17 @@
           <button type="submit" class="btn btn-primary btn-block" id="submit-button">
             Submit
           </button>
+          
+          <button type="button" class="btn btn-danger btn-block mt-3" id="delete-all-button">
+            Hapus Semua Data
+          </button>
         </form>
       </div>
     </div>
 
     <script>
       const scriptURL =                       
-      "https://script.google.com/macros/s/AKfycbxwS-XEVXRZRyL_X5v-BiCw23ASC0xiDcc9Nlu42GyT164MTjbDOWQSiNACZ4Ue7RW2Yg/exec";
+      "https://script.google.com/macros/s/AKfycbxRYi0jvvffDnNVZsowvCAR-2YxBcSkw-o3ZRSEbp31H6HrGan0UQA-ulBTCyJnQ36Vfg/exec";
       const form = document.forms["submit-to-google-sheet"];
       const submitButton = document.getElementById("submit-button");
       
@@ -133,28 +127,30 @@
             
             // Get form values
             const name = form.elements["name"].value;
-            const email = form.elements["email"].value;
             const contactNumber = form.elements["contact_number"].value;
             const rentalDate = form.elements["rental_date"].value;
             const price = form.elements["price"].value;
             const paymentStatus = form.elements["payment_status"].value;
             const message = form.elements["message"].value;
             
-            // Format WhatsApp message
-            const whatsappMessage = `*Data Penyewaan Dekorasi*
-Nama: ${name}
-Email: ${email}
-No. Kontak: ${contactNumber}
-Tanggal Sewa: ${rentalDate}
-Harga: Rp${price}
-Status Pembayaran: ${paymentStatus}
-Catatan: ${message}`;
+            // Format message for clipboard with emojis
+            const clipboardMessage = `🎀 *Data Penyewaan Dekorasi* 🎀
+
+👤 Nama: ${name}
+📱 No. Kontak: ${contactNumber}
+📅 Tanggal Sewa: ${rentalDate}
+💰 Harga: Rp${price}
+💳 Status Pembayaran: ${paymentStatus}
+📝 Catatan: ${message}`;
             
-            // Open WhatsApp with pre-filled message
-            // Ganti nomor telepon berikut dengan nomor tujuan Anda
-            const phoneNumber = "6287852703514"; // Format: 628xxxxxxxxxx
-            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
-            window.open(whatsappUrl, '_blank');
+            // Copy to clipboard
+            navigator.clipboard.writeText(clipboardMessage)
+              .then(() => {
+                swal("Berhasil!", "Data telah disalin ke clipboard. ✅", "success");
+              })
+              .catch(err => {
+                swal("Error!", "Gagal menyalin ke clipboard: " + err, "error");
+              });
             
             form.reset();
           })
@@ -165,6 +161,59 @@ Catatan: ${message}`;
             // Re-enable the submit button after the request completes
             submitButton.disabled = false;
             submitButton.textContent = "Submit";
+          });
+      });
+      
+      // Delete all data functionality
+      const deleteAllButton = document.getElementById("delete-all-button");
+      
+      deleteAllButton.addEventListener("click", () => {
+        swal({
+          title: "Konfirmasi Hapus",
+          text: "Masukkan password untuk menghapus semua data:",
+          type: "warning",
+          input: "password",
+          inputPlaceholder: "Enter password",
+          showCancelButton: true,
+          confirmButtonText: "Hapus",
+          cancelButtonText: "Batal",
+          closeOnConfirm: false
+        }).then((result) => {
+          if (result.value === "delete321") {
+            // Password is correct, proceed with deletion
+            fetch(scriptURL + "?action=delete", { method: "GET" })
+              .then(response => response.json())
+              .then(data => {
+                if (data.result === "success") {
+                  swal("Berhasil!", "Semua data telah dihapus.", "success");
+                } else {
+                  swal("Error!", "Gagal menghapus data: " + data.message, "error");
+                }
+              })
+              .catch(error => {
+                swal("Error!", "Terjadi kesalahan saat menghapus data.", "error");
+              });
+          } else if (result.dismiss !== "cancel") {
+            swal("Gagal!", "Password salah.", "error");
+          }
+        });
+      });
+      
+      // Sort data functionality
+      const sortDataButton = document.getElementById("sort-data-button");
+      
+      sortDataButton.addEventListener("click", () => {
+        fetch(scriptURL + "?action=sort", { method: "GET" })
+          .then(response => response.json())
+          .then(data => {
+            if (data.result === "success") {
+              swal("Berhasil!", "Data telah diurutkan berdasarkan tanggal sewa.", "success");
+            } else {
+              swal("Error!", "Gagal mengurutkan data: " + data.message, "error");
+            }
+          })
+          .catch(error => {
+            swal("Error!", "Terjadi kesalahan saat mengurutkan data.", "error");
           });
       });
     </script>
