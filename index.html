@@ -105,7 +105,7 @@
             ></textarea>
           </div>
 
-          <button type="submit" class="btn btn-primary btn-block">
+          <button type="submit" class="btn btn-primary btn-block" id="submit-button">
             Submit
           </button>
         </form>
@@ -116,8 +116,15 @@
       const scriptURL =                       
       "https://script.google.com/macros/s/AKfycbxwS-XEVXRZRyL_X5v-BiCw23ASC0xiDcc9Nlu42GyT164MTjbDOWQSiNACZ4Ue7RW2Yg/exec";
       const form = document.forms["submit-to-google-sheet"];
+      const submitButton = document.getElementById("submit-button");
+      
       form.addEventListener("submit", (e) => {
         e.preventDefault();
+        
+        // Disable the submit button to prevent multiple clicks
+        submitButton.disabled = true;
+        submitButton.textContent = "Mengirim...";
+        
         var formData = new FormData(form);
 
         fetch(scriptURL, { method: "POST", body: formData })
@@ -153,6 +160,11 @@ Catatan: ${message}`;
           })
           .catch((error) => {
             swal("Error", "Terjadi kesalahan. Silakan coba lagi!", "error");
+          })
+          .finally(() => {
+            // Re-enable the submit button after the request completes
+            submitButton.disabled = false;
+            submitButton.textContent = "Submit";
           });
       });
     </script>
