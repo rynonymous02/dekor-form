@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Form Sewa Dekor</title>
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@7.12.15/dist/sweetalert2.all.min.js"></script>
+    <style>
+      .form-container {
+        max-width: 500px;
+        margin: auto;
+        margin-top: 50px;
+        padding: 20px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        background-color: #fff;
+      }
+    </style>
+  </head>
+  <body class="bg-light">
+    <div class="container">
+      <div class="form-container">
+        <h4 class="text-center mb-4">Form Sewa Dekorasi</h4>
+        <form id="submit-to-google-sheet">
+          <div class="form-group">
+            <label for="name">Nama:</label>
+            <input
+              class="form-control"
+              type="text"
+              name="name"
+              id="name"
+              placeholder="Nama lengkap"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="email">Email:</label>
+            <input
+              class="form-control"
+              type="email"
+              name="email"
+              id="email"
+              placeholder="Alamat email"
+              required
+            />
+          </div>
+          <div class="form-group">
+            <label for="contact_number">Nomor Kontak:</label>
+            <input
+              class="form-control"
+              type="text"
+              name="contact_number"
+              id="contact_number"
+              placeholder="Nomor telepon/WA"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="rental_date">Tanggal Sewa:</label>
+            <input
+              class="form-control"
+              type="date"
+              name="rental_date"
+              id="rental_date"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="price">Harga Sewa (Rp):</label>
+            <input
+              class="form-control"
+              type="number"
+              name="price"
+              id="price"
+              placeholder="Harga sewa"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="payment_status">Status Pembayaran:</label>
+            <select class="form-control" name="payment_status" id="payment_status" required>
+              <option value="" disabled selected hidden>Pilih status pembayaran</option>
+              <option value="lunas">Lunas</option>
+              <option value="dp">DP</option>
+              <option value="belum_bayar">Belum Bayar</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="message">Catatan Tambahan:</label>
+            <textarea
+              class="form-control"
+              name="message"
+              id="message"
+              placeholder="Catatan tambahan untuk penyewaan"
+            ></textarea>
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-block">
+            Submit
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+      const scriptURL =                       
+      "https://script.google.com/macros/s/AKfycbxwS-XEVXRZRyL_X5v-BiCw23ASC0xiDcc9Nlu42GyT164MTjbDOWQSiNACZ4Ue7RW2Yg/exec";
+      const form = document.forms["submit-to-google-sheet"];
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        var formData = new FormData(form);
+
+        fetch(scriptURL, { method: "POST", body: formData })
+          .then((response) => {
+            swal("Berhasil", "Data berhasil dikirim.", "success");
+            
+            // Get form values
+            const name = form.elements["name"].value;
+            const email = form.elements["email"].value;
+            const contactNumber = form.elements["contact_number"].value;
+            const rentalDate = form.elements["rental_date"].value;
+            const price = form.elements["price"].value;
+            const paymentStatus = form.elements["payment_status"].value;
+            const message = form.elements["message"].value;
+            
+            // Format WhatsApp message
+            const whatsappMessage = `*Data Penyewaan Dekorasi*
+Nama: ${name}
+Email: ${email}
+No. Kontak: ${contactNumber}
+Tanggal Sewa: ${rentalDate}
+Harga: Rp${price}
+Status Pembayaran: ${paymentStatus}
+Catatan: ${message}`;
+            
+            // Open WhatsApp with pre-filled message
+            // Ganti nomor telepon berikut dengan nomor tujuan Anda
+            const phoneNumber = "6287852703514"; // Format: 628xxxxxxxxxx
+            const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(whatsappMessage)}`;
+            window.open(whatsappUrl, '_blank');
+            
+            form.reset();
+          })
+          .catch((error) => {
+            swal("Error", "Terjadi kesalahan. Silakan coba lagi!", "error");
+          });
+      });
+    </script>
+  </body>
+</html>
